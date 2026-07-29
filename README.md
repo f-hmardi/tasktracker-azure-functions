@@ -33,9 +33,11 @@ curl -X POST http://localhost:7072/api/tasks \
 
 Open `app/index.html` in a browser to view the simple frontend. It calls the API at `/api/tasks` after deployment.
 
-## Current architecture
+## Storage configuration
 
-The project uses an in-memory task store for learning. Tasks disappear when the local Function stops. Later steps will add Azure Storage, Application Insights, Key Vault, and a database.
+Without a storage connection setting, the project uses in-memory tasks for local learning. To persist tasks in Azure Table Storage, set `TASKS_STORAGE_CONNECTION_STRING` as a local setting and as an Azure Static Web Apps environment variable. This value is a secret and must never be committed to Git.
+
+Later steps will add Application Insights, Key Vault, and a database.
 
 ## Security note
 

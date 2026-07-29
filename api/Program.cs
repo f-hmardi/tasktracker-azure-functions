@@ -10,7 +10,16 @@ using TaskTrackerFunctions;
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
-builder.Services.AddSingleton<InMemoryTaskStore>();
+
+var storageConnectionString = builder.Configuration["TASKS_STORAGE_CONNECTION_STRING"];
+if (string.IsNullOrWhiteSpace(storageConnectionString))
+{
+    builder.Services.AddSingleton<ITaskStore, InMemoryTaskStore>();
+}
+else
+{
+    builder.Services.AddSingleton<ITaskStore>(_ => new AzureTableTaskStore(storageConnectionString));
+}
 
 var telemetry = builder.Services.AddOpenTelemetry()
     .UseFunctionsWorkerDefaults();
