@@ -1,6 +1,11 @@
-# TaskTracker Functions
+# TaskTracker Azure Functions
 
-Serverless C# API built with Azure Functions (.NET 10 isolated worker).
+A small task-tracking web app with a static frontend and a serverless C# API.
+
+```text
+app/  → browser UI, deployed by Azure Static Web Apps
+api/  → Azure Functions (.NET 10 isolated worker)
+```
 
 ## Endpoints
 
@@ -9,9 +14,10 @@ Serverless C# API built with Azure Functions (.NET 10 isolated worker).
 | `GET` | `/api/tasks` | List tasks |
 | `POST` | `/api/tasks` | Create a task |
 
-## Run locally
+## Run the API locally
 
 ```bash
+cd api
 dotnet run -- --port 7072
 ```
 
@@ -24,6 +30,8 @@ curl -X POST http://localhost:7072/api/tasks \
   -H "Content-Type: application/json" \
   -d '{"title":"Learn Azure Functions","description":"Build a serverless API"}'
 ```
+
+Open `app/index.html` in a browser to view the simple frontend. It calls the API at `/api/tasks` after deployment.
 
 ## Current architecture
 

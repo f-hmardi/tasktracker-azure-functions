@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TaskTracker</title>
+  <style>
+    body { background: #f4f7fb; color: #172033; font: 16px system-ui, sans-serif; margin: 0; }
+    main { max-width: 720px; margin: 48px auto; padding: 0 20px; }
+    section { background: white; border-radius: 12px; box-shadow: 0 2px 12px #17203318; margin-top: 20px; padding: 24px; }
+    input, textarea, button { box-sizing: border-box; font: inherit; margin-top: 10px; padding: 10px; width: 100%; }
+    button { background: #2563eb; border: 0; border-radius: 6px; color: white; cursor: pointer; font-weight: 700; }
+    li { border-bottom: 1px solid #e5e7eb; list-style: none; padding: 14px 0; }
+    ul { padding: 0; } .error { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>TaskTracker</h1>
+    <p>A C# Azure Functions learning project.</p>
+    <section>
+      <h2>Create a task</h2>
+      <form id="task-form">
+        <input id="title" minlength="3" placeholder="Task title" required>
+        <textarea id="description" placeholder="Description (optional)"></textarea>
+        <button type="submit">Add task</button>
+      </form>
+      <p id="message" class="error"></p>
+    </section>
+    <section>
+      <h2>Tasks</h2>
+      <ul id="tasks"><li>Loading tasks…</li></ul>
+    </section>
+  </main>
+  <script>
+    const tasks = document.querySelector('#tasks');
+    const message = document.querySelector('#message');
+
+    async function loadTasks() {
+      const response = await fetch('/api/tasks');
+      const items = await response.json();
+      tasks.innerHTML = items.length
+        ? items.map(task => `<li><strong>${escapeHtml(task.title)}</strong><br>${escapeHtml(task.description || '')}</li>`).join('')
+        : '<li>No tasks yet.</li>';
+    }
+
+    document.querySelector('#task-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      message.textContent = '';
+      const response = await fetch('/api/tasks', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title.value, description: description.value })
+      });
+      if (!response.ok) { message.textContent = 'Could not create the task.'; return; }
+      event.target.reset();
+      await loadTasks();
+    });
+
+    function escapeHtml(value) {
+      const element = document.createElement('div'); element.textContent = value; return element.innerHTML;
+    }
+
+    loadTasks().catch(() => { tasks.innerHTML = '<li class="error">The API is not available yet.</li>'; });
+  </script>
+</body>
+</html>
