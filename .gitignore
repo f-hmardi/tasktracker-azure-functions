@@ -8,6 +8,9 @@ local.settings.json
 docs/azure-functions-static-web-apps-review.md
 docs/TaskTracker-Azure-Interview-Review.docx
 
+# macOS Finder metadata
+.DS_Store
+
 # User-specific files
 *.suo
 *.user
