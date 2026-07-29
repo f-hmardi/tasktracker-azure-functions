@@ -20,8 +20,10 @@ public class TasksFunction
     public async Task<IActionResult> GetTasks(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tasks")] HttpRequest req)
     {
-        _logger.LogInformation("Listing tasks.");
-        return new OkObjectResult(await _taskStore.GetAllAsync());
+        var tasks = await _taskStore.GetAllAsync();
+        _logger.LogInformation("Returned {TaskCount} tasks.", tasks.Count);
+
+        return new OkObjectResult(tasks);
     }
 
     [Function("CreateTask")]
@@ -32,6 +34,8 @@ public class TasksFunction
 
         if (string.IsNullOrWhiteSpace(request?.Title) || request.Title.Trim().Length < 3)
         {
+            _logger.LogWarning("Task creation was rejected because the title was missing or too short.");
+
             return new BadRequestObjectResult(new
             {
                 error = "Title is required and must contain at least 3 characters."
