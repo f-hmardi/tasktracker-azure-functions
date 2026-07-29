@@ -6,6 +6,7 @@ local.settings.json
 
 # Personal study notes stay on this computer and are not published to GitHub.
 docs/azure-functions-static-web-apps-review.md
+docs/TaskTracker-Azure-Interview-Review.docx
 
 # User-specific files
 *.suo
