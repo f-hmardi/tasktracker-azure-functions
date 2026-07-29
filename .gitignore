@@ -4,6 +4,9 @@
 # Azure Functions localsettings file
 local.settings.json
 
+# Personal study notes stay on this computer and are not published to GitHub.
+docs/azure-functions-static-web-apps-review.md
+
 # User-specific files
 *.suo
 *.user
