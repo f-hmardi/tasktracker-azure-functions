@@ -31,18 +31,19 @@ public class TasksFunction
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tasks")] HttpRequest req)
     {
         var request = await req.ReadFromJsonAsync<CreateTaskRequest>();
+        var validationError = TaskRequestValidator.Validate(request);
 
-        if (string.IsNullOrWhiteSpace(request?.Title) || request.Title.Trim().Length < 3)
+        if (validationError is not null)
         {
             _logger.LogWarning("Task creation was rejected because the title was missing or too short.");
 
             return new BadRequestObjectResult(new
             {
-                error = "Title is required and must contain at least 3 characters."
+                error = validationError
             });
         }
 
-        var task = await _taskStore.CreateAsync(request.Title, request.Description);
+        var task = await _taskStore.CreateAsync(request!.Title!, request.Description);
         _logger.LogInformation("Created task {TaskId}.", task.Id);
 
         return new CreatedResult($"/api/tasks/{task.Id}", task);
