@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Azure.Functions.Worker.OpenTelemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 using OpenTelemetry;
 using TaskTrackerFunctions;
 
@@ -11,14 +12,22 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 
+var sqlConnectionString = builder.Configuration["TASKS_SQL_CONNECTION_STRING"];
 var storageConnectionString = builder.Configuration["TASKS_STORAGE_CONNECTION_STRING"];
-if (string.IsNullOrWhiteSpace(storageConnectionString))
+
+if (!string.IsNullOrWhiteSpace(sqlConnectionString))
 {
-    builder.Services.AddSingleton<ITaskStore, InMemoryTaskStore>();
+    builder.Services.AddDbContextFactory<TaskDbContext>(options =>
+        options.UseSqlServer(sqlConnectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
+    builder.Services.AddSingleton<ITaskStore, SqlTaskStore>();
+}
+else if (!string.IsNullOrWhiteSpace(storageConnectionString))
+{
+    builder.Services.AddSingleton<ITaskStore>(_ => new AzureTableTaskStore(storageConnectionString));
 }
 else
 {
-    builder.Services.AddSingleton<ITaskStore>(_ => new AzureTableTaskStore(storageConnectionString));
+    builder.Services.AddSingleton<ITaskStore, InMemoryTaskStore>();
 }
 
 var telemetry = builder.Services.AddOpenTelemetry()
