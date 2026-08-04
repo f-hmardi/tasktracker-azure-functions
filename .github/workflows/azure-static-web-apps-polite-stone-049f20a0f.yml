@@ -10,8 +10,21 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run .NET tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+      - name: Run unit tests
+        run: dotnet test tests/TaskTrackerFunctions.Tests/TaskTrackerFunctions.Tests.csproj --configuration Release
+
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    needs: test
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
